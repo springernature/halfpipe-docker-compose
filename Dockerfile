@@ -1,6 +1,6 @@
 FROM amidos/dcind
 
-RUN apk --no-cache add bash
+RUN apk --no-cache add bash git jq openssh
 
 COPY docker.sh /usr/local/bin/
 
