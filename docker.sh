@@ -2,6 +2,7 @@
 source /docker-lib.sh
 start_docker
 
+# load any saved images added by resources
 cache="$(echo $PWD | cut -d/ -f1-4)/docker-images"
 
 if [ -d "${cache}" ]; then
