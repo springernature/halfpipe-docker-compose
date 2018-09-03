@@ -79,6 +79,9 @@ start_docker() {
     echo waiting for docker to come up...
     sleep 1
   done
+
+  docker --version
+  docker-compose --version
 }
 
 stop_docker() {
