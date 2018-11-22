@@ -15,4 +15,4 @@ if [ -d "${cache}" ]; then
   done
 fi
 
-exec bash -ec "$@"
+exec bash -c "$@"
