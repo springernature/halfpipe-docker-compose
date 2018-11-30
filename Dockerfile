@@ -1,12 +1,11 @@
 # Inspired by https://github.com/meAmidos/dcind and https://github.com/mumoshu/dcind
-FROM alpine:3.7
+FROM debian:stretch-slim
 
 ENV DOCKER_VERSION="18.03.1-ce" \
-    DOCKER_COMPOSE_VERSION="1.22.0"
+    DOCKER_COMPOSE_VERSION="1.23.1"
 
 # Install everything
-RUN apk --update --no-cache add curl device-mapper py-pip iptables bash git jq openssh && \
-    rm -rf /var/cache/apk/* && \
+RUN apt-get update && apt-get install -y curl libdevmapper-dev python-pip iptables bash git jq openssh-server nfs-common && \
     curl https://download.docker.com/linux/static/stable/x86_64/docker-${DOCKER_VERSION}.tgz | tar zx && \
     mv /docker/* /bin/ && chmod +x /bin/docker* && \
     pip install docker-compose==${DOCKER_COMPOSE_VERSION}

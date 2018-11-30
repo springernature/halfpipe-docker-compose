@@ -1,4 +1,10 @@
 #!/usr/bin/env bash
+
+readonly cache_host="${HALFPIPE_CACHE_HOST:cache.halfpipe.io}"
+readonly cache_share="${HALFPIPE_CACHE_SHARE:/cache}"
+readonly cache_team="${HALFPIPE_CACHE_TEAM:common}"
+readonly cache_mount="/opt/halfpipe-nfs"
+
 source /docker-lib.sh
 start_docker
 
@@ -14,5 +20,19 @@ if [ -d "${cache}" ]; then
       "$(cat "${image}repository"):$(cat "${image}tag")"
   done
 fi
+
+function cleanup {
+  unmount ${cache_mount}
+}
+
+trap cleanup EXIT
+(
+set -e
+mkdir -p ${cache_mount}
+mount -t nfs -o nolock ${cache_host}:${cache_share} ${cache_mount}
+mkdir -p ${cache_mount}/${cache_team}
+ln -s ${cache_mount}/${cache_team} /halfpipe-cache
+)
+[[ 0 -eq $? ]] && echo "NFS Cache mount ${cache_mount}/${cache_team} successful"
 
 exec bash -c "$@"
