@@ -5,7 +5,7 @@ ENV DOCKER_VERSION="18.03.1-ce" \
     DOCKER_COMPOSE_VERSION="1.23.1"
 
 # Install everything
-RUN apt-get update && apt-get install -y curl libdevmapper-dev python-pip iptables bash git jq openssh-server nfs-common && \
+RUN apt-get update && apt-get install -y curl libdevmapper-dev python-pip iptables bash git jq openssh-server nfs-common dumb-init  && \
     curl https://download.docker.com/linux/static/stable/x86_64/docker-${DOCKER_VERSION}.tgz | tar zx && \
     mv /docker/* /bin/ && chmod +x /bin/docker* && \
     pip install docker-compose==${DOCKER_COMPOSE_VERSION}
@@ -15,4 +15,5 @@ RUN apt-get update && apt-get install -y curl libdevmapper-dev python-pip iptabl
 COPY docker-lib.sh /docker-lib.sh
 COPY docker.sh /usr/local/bin/
 
-ENTRYPOINT ["docker.sh"]
+
+ENTRYPOINT ["/usr/bin/dumb-init", "--", "docker.sh"]

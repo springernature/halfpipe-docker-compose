@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
-readonly cache_host="${HALFPIPE_CACHE_HOST:cache.halfpipe.io}"
-readonly cache_share="${HALFPIPE_CACHE_SHARE:/cache}"
-readonly cache_team="${HALFPIPE_CACHE_TEAM:common}"
+readonly cache_host="${HALFPIPE_CACHE_HOST:-cache.halfpipe.io}"
+readonly cache_share="${HALFPIPE_CACHE_SHARE:-/cache}"
+readonly cache_team="${HALFPIPE_CACHE_TEAM:-common}"
 readonly cache_mount="/opt/halfpipe-nfs"
 
 source /docker-lib.sh
@@ -22,17 +22,18 @@ if [ -d "${cache}" ]; then
 fi
 
 function cleanup {
-  unmount ${cache_mount}
+  umount ${cache_mount}
 }
 
 trap cleanup EXIT
 (
 set -e
 mkdir -p ${cache_mount}
-mount -t nfs -o nolock ${cache_host}:${cache_share} ${cache_mount}
-mkdir -p ${cache_mount}/${cache_team}
-ln -s ${cache_mount}/${cache_team} /halfpipe-cache
+mount -t nfs -o nolock,retry=0,soft ${cache_host}:${cache_share} ${cache_mount}
 )
 [[ 0 -eq $? ]] && echo "NFS Cache mount ${cache_mount}/${cache_team} successful"
+
+mkdir -p ${cache_mount}/${cache_team}
+ln -s ${cache_mount}/${cache_team} /halfpipe-cache
 
 exec bash -c "$@"
