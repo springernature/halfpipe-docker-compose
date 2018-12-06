@@ -15,14 +15,13 @@ RUN apt-get update && apt-get install -y \
     libdevmapper-dev \
     nfs-common \
     openssh-server \
-    python-pip
+    python-pip && \
+    apt-get autoremove -y && apt-get clean
 
 RUN curl https://download.docker.com/linux/static/stable/x86_64/docker-${DOCKER_VERSION}.tgz | tar zx && \
     mv /docker/* /bin/ && chmod +x /bin/docker*
 
 RUN pip install docker-compose==${DOCKER_COMPOSE_VERSION}
-
-RUN apt-get autoremove -y && apt-get clean
 
 # Include useful functions to start/stop docker daemon in garden-runc containers in Concourse CI.
 # Example: source /docker-lib.sh && start_docker

@@ -3,3 +3,6 @@ services:
   app:
     image: debian
     command: bash -c './test.sh'
+    working_dir: /root/code
+    volumes:
+      - ..:/root/code
