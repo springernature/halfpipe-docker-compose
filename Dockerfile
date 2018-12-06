@@ -8,7 +8,8 @@ ENV DOCKER_VERSION="18.03.1-ce" \
 RUN apt-get update && apt-get install -y curl libdevmapper-dev python-pip iptables bash git jq openssh-server nfs-common dumb-init  && \
     curl https://download.docker.com/linux/static/stable/x86_64/docker-${DOCKER_VERSION}.tgz | tar zx && \
     mv /docker/* /bin/ && chmod +x /bin/docker* && \
-    pip install docker-compose==${DOCKER_COMPOSE_VERSION}
+    pip install docker-compose==${DOCKER_COMPOSE_VERSION} \
+    apt-get clean -y
 
 # Include useful functions to start/stop docker daemon in garden-runc containers in Concourse CI.
 # Example: source /docker-lib.sh && start_docker

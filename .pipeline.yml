@@ -1,0 +1,115 @@
+resources:
+  - name: git
+    type: git
+    source:
+      private_key: ((github.private_key))
+      uri: git@github.com:springernature/halfpipe-docker-compose.git
+      branch: nfs_cache
+
+  - name: version
+    type: semver
+    source:
+      driver: git
+      uri: git@github.com:springernature/halfpipe-docker-compose.git
+      branch: version
+      file: version
+      private_key: ((halfpipe-docker-compose.deploy-key))
+      initial_version: 1.0.0
+
+  - name: docker
+    type: docker-image
+    source:
+      repository: eu.gcr.io/halfpipe-io/halfpipe-docker-compose-test
+      username: _json_key
+      password: ((gcr.private_key))
+
+  - name: docker-dev
+    type: docker-image
+    source:
+      repository: eu.gcr.io/halfpipe-io/halfpipe-docker-compose-test
+      username: _json_key
+      password: ((gcr.private_key))
+      tag: dev
+
+jobs:
+  - name: build
+    serial: true
+    plan:
+      - get: git
+        trigger: true
+      - get: version
+        params: {bump: minor}
+      - put: docker
+        params:
+          build: git
+          tag: version/version
+          tag_as_latest: true
+          additional_tags: tags_dev
+      - put: version
+        params: {file: version/version}
+
+  - name: test
+    serial: true
+    plan:
+      - get: git
+        trigger: false
+      - get: docker-dev
+        trigger: true
+        passed: [build]
+      - task: test success
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source:
+              repository: eu.gcr.io/halfpipe-io/halfpipe-docker-compose-test
+              username: _json_key
+              password: ((gcr.private_key))
+              tag: dev
+          params:
+            HALFPIPE_CACHE_TEAM: halfpipe-docker-compose-test
+          run:
+            path: /bin/sh
+            args:
+            - -c
+            - |
+              set -e
+              docker-compose run -e HALFPIPE_CACHE_TEAM app
+          dir: git/integration/01_success
+      - task: test missing nfs volume
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source:
+              repository: eu.gcr.io/halfpipe-io/halfpipe-docker-compose-test
+              username: _json_key
+              password: ((gcr.private_key))
+              tag: dev
+          params:
+            HALFPIPE_CACHE_HOST: not-here-host
+          run:
+            path: /bin/sh
+            args:
+            - -c
+            - |
+              set -e
+              docker-compose run -e HALFPIPE_CACHE_HOST app
+          dir: git/integration/02_unavailable
+
+      - name: deploy
+        serial: true
+        plan:
+          - get: git
+          - get: docker
+            trigger: false
+            passed: [test]
+            params: {save: true}
+          - get: version
+          - put: docker
+            params:
+              load: docker
+              cache: true
+              cache_tag: version/version
+              tag: repo/tags_stable
+              tag_as_latest: true

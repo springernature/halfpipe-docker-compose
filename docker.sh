@@ -34,6 +34,6 @@ mount -t nfs -o nolock,retry=0,soft ${cache_host}:${cache_share} ${cache_mount}
 [[ 0 -eq $? ]] && echo "NFS Cache mount ${cache_mount}/${cache_team} successful"
 
 mkdir -p ${cache_mount}/${cache_team}
-ln -s ${cache_mount}/${cache_team} /halfpipe-cache
+ln -s ${cache_mount}/${cache_team} /halfpipe-shared-cache
 
 exec bash -c "$@"
