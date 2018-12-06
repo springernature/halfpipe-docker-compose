@@ -47,6 +47,7 @@ jobs:
     plan:
       - aggregate:
         - get: git
+          trigger: true
           passed: [build]
         - get: docker
           trigger: true
@@ -101,6 +102,7 @@ jobs:
     serial: true
     plan:
       - get: git
+        trigger: true
         passed: [test]
       - get: docker
         params:
