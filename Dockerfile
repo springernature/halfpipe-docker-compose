@@ -8,7 +8,7 @@ ENV DOCKER_COMPOSE_VERSION="1.23.1"
 RUN apt-get update && apt-get install -y \
     bash \
     curl \
-    dumb-init
+    dumb-init \
     git \
     iptables \
     jq \

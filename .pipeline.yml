@@ -44,7 +44,7 @@ jobs:
           build: git
           tag: version/version
           tag_as_latest: true
-          additional_tags: tags_dev
+          additional_tags: git/tags_dev
       - put: version
         params: {file: version/version}
 
@@ -55,7 +55,6 @@ jobs:
         trigger: false
       - get: docker-dev
         trigger: true
-        passed: [build]
       - task: test success
         config:
           platform: linux
@@ -75,7 +74,7 @@ jobs:
             - |
               set -e
               docker-compose run -e HALFPIPE_CACHE_TEAM app
-          dir: git/integration/01_success
+            dir: git/integration/01_success
       - task: test missing nfs volume
         config:
           platform: linux
@@ -95,21 +94,20 @@ jobs:
             - |
               set -e
               docker-compose run -e HALFPIPE_CACHE_HOST app
-          dir: git/integration/02_unavailable
+            dir: git/integration/02_unavailable
 
-      - name: deploy
-        serial: true
-        plan:
-          - get: git
-          - get: docker
-            trigger: false
-            passed: [test]
-            params: {save: true}
-          - get: version
-          - put: docker
-            params:
-              load: docker
-              cache: true
-              cache_tag: version/version
-              tag: repo/tags_stable
-              tag_as_latest: true
+  - name: deploy
+    serial: true
+    plan:
+      - get: git
+      - get: docker
+        trigger: false
+        params: {save: true}
+      - get: version
+      - put: docker
+        params:
+          load: docker
+          cache: true
+          cache_tag: version/version
+          tag: repo/tags_stable
+          tag_as_latest: true
