@@ -4,7 +4,6 @@ resources:
     source:
       private_key: ((github.private_key))
       uri: git@github.com:springernature/halfpipe-docker-compose.git
-      branch: nfs_cache
 
   - name: version
     type: semver
