@@ -34,9 +34,9 @@ mount -t nfs -o nolock,retry=0,soft ${cache_host}:${cache_share} ${cache_mount}
 )
 
 if [[ 0 -eq $? ]]; then
-    echo "NFS Cache mount ${cache_dir} successful"
+    echo "Cache dir available: ${cache_dir}"
 else
-    echo "NFS Cache mount failed"
+    echo "Cache dir unavailable"
 fi
 
 mkdir -p ${cache_mount}/${cache_team}

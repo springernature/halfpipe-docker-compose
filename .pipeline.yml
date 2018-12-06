@@ -45,14 +45,9 @@ jobs:
   - name: test
     serial: true
     plan:
-      - aggregate:
-        - get: git
-          trigger: true
-          passed: [build]
-        - get: docker
-          trigger: true
-          params:
-            skip_download: true
+      - get: git
+        trigger: true
+        passed: [build]
       - task: test success
         privileged: true
         config:
@@ -102,7 +97,6 @@ jobs:
     serial: true
     plan:
       - get: git
-        trigger: true
         passed: [test]
       - get: docker
         params:
@@ -113,6 +107,6 @@ jobs:
           load: docker
           cache: true
           cache_tag: version/version
-          tag: repo/tags_stable
+          tag: git/tags_stable
           tag_as_latest: true
           skip_download: true
