@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 
+readonly cache_mount="/opt/halfpipe-nfs"
 readonly cache_host="${HALFPIPE_CACHE_HOST:-cache.halfpipe.io}"
 readonly cache_share="${HALFPIPE_CACHE_SHARE:-/cache}"
 readonly cache_team="${HALFPIPE_CACHE_TEAM:-common}"
-readonly cache_mount="/opt/halfpipe-nfs"
+readonly cache_dir="${HALFPIPE_CACHE_DIR:-/halfpipe-shared-cache}"
 
 source /docker-lib.sh
 start_docker
@@ -31,9 +32,14 @@ set -e
 mkdir -p ${cache_mount}
 mount -t nfs -o nolock,retry=0,soft ${cache_host}:${cache_share} ${cache_mount}
 )
-[[ 0 -eq $? ]] && echo "NFS Cache mount ${cache_mount}/${cache_team} successful"
+
+if [[ 0 -eq $? ]]; then
+    echo "NFS Cache mount ${cache_dir} successful"
+else
+    echo "NFS Cache mount failed"
+fi
 
 mkdir -p ${cache_mount}/${cache_team}
-ln -s ${cache_mount}/${cache_team} /halfpipe-shared-cache
+ln -s ${cache_mount}/${cache_team} ${cache_dir}
 
 exec bash -c "$@"

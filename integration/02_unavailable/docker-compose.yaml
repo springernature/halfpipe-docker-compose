@@ -6,3 +6,4 @@ services:
     working_dir: /root/code
     volumes:
       - .:/root/code
+      - /halfpipe-shared-cache:/halfpipe-shared-cache
