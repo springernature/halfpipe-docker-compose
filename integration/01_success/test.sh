@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 set -ex
 
-if [ ! -f /halfpipe-shared-cache/cached_file ]; then
+if [ ! -f /var/halfpipe/shared-cache/cached_file ]; then
     # first time execeution? create the fucking file
-    touch /halfpipe-shared-cache/cached_file
+    touch /var/halfpipe/shared-cache/cached_file
     (>&2 echo "Failed to find cached_file on nfs volume")
     exit 1
 fi

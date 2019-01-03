@@ -96,6 +96,28 @@ jobs:
             dir: git/integration/02_unavailable
           inputs:
             - name: git
+      - task: test backward compatibility
+        privileged: true
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source:
+              repository: eu.gcr.io/halfpipe-io/halfpipe-docker-compose
+              username: _json_key
+              password: ((gcr.private_key))
+          params:
+            HALFPIPE_CACHE_TEAM: halfpipe-docker-compose-test
+          run:
+            path: docker.sh
+            args:
+              - -c
+              - |
+                set -e
+                docker-compose run -e HALFPIPE_CACHE_TEAM app
+            dir: git/integration/03_backward_compatibility
+          inputs:
+            - name: git
 
   - name: deploy
     serial: true
