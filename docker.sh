@@ -40,8 +40,9 @@ else
 fi
 
 mkdir -p ${cache_mount}/${cache_team}
-ln -s ${cache_mount}/${cache_team} ${cache_dir}
+mkdir -p $(dirname ${cache_dir})
 
+ln -s ${cache_mount}/${cache_team} ${cache_dir}
 # deprecated old cache dir location
 ln -s ${cache_mount}/${cache_team} /halfpipe-shared-cache
 
