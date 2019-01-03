@@ -47,6 +47,11 @@ jobs:
       - get: git
         trigger: true
         passed: [build]
+      - get: docker
+        trigger: true
+        passed: [build]
+        params:
+          skip_download: true
       - task: test success
         privileged: true
         config:

@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 
-readonly cache_mount="/opt/halfpipe-nfs"
+readonly cache_mount="/mnt/halfpipe-cache"
 readonly cache_host="${HALFPIPE_CACHE_HOST:-cache.halfpipe.io}"
 readonly cache_share="${HALFPIPE_CACHE_SHARE:-/cache}"
 readonly cache_team="${HALFPIPE_CACHE_TEAM:-common}"
-readonly cache_dir="${HALFPIPE_CACHE_DIR:-/halfpipe-shared-cache}"
+readonly cache_dir="${HALFPIPE_CACHE_DIR:-/var/halfpipe/shared-cache}"
 
 source /docker-lib.sh
 start_docker
@@ -41,5 +41,8 @@ fi
 
 mkdir -p ${cache_mount}/${cache_team}
 ln -s ${cache_mount}/${cache_team} ${cache_dir}
+
+# deprecated old cache dir location
+ln -s ${cache_mount}/${cache_team} /halfpipe-shared-cache
 
 exec bash -c "$@"
