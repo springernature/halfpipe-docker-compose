@@ -1,8 +1,8 @@
 # Inspired by https://github.com/meAmidos/dcind and https://github.com/mumoshu/dcind
 FROM debian:stretch-slim
 
-ENV DOCKER_VERSION="18.03.1-ce"
-ENV DOCKER_COMPOSE_VERSION="1.23.1"
+ENV DOCKER_VERSION="18.09.6"
+ENV DOCKER_COMPOSE_VERSION="1.24.0"
 
 # Install everything
 RUN apt-get update && apt-get install -y \
