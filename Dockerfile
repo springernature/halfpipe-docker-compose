@@ -1,5 +1,5 @@
 # Inspired by https://github.com/meAmidos/dcind and https://github.com/mumoshu/dcind
-FROM debian:stretch-slim
+FROM debian:buster-slim
 
 ENV DOCKER_VERSION="19.03.0"
 ENV DOCKER_COMPOSE_VERSION="1.24.1"
