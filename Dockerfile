@@ -6,7 +6,6 @@ ENV DOCKER_COMPOSE_VERSION="1.24.1"
 
 # Install everything
 RUN apt-get update && apt-get install -y \
-    bash \
     curl \
     dumb-init \
     git \
@@ -15,13 +14,15 @@ RUN apt-get update && apt-get install -y \
     libdevmapper-dev \
     nfs-common \
     openssh-server \
-    python-pip && \
+    python-pip \
+    python-backports.ssl-match-hostname && \
     apt-get autoremove -y && apt-get clean
 
 RUN curl https://download.docker.com/linux/static/stable/x86_64/docker-${DOCKER_VERSION}.tgz | tar zx && \
-    mv /docker/* /bin/ && chmod +x /bin/docker*
+    mv /docker/* /bin/ && \
+    chmod +x /bin/docker* && \
+    pip install docker-compose==${DOCKER_COMPOSE_VERSION}
 
-RUN pip install docker-compose==${DOCKER_COMPOSE_VERSION}
 
 # Include useful functions to start/stop docker daemon in garden-runc containers in Concourse CI.
 # Example: source /docker-lib.sh && start_docker
