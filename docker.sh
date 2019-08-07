@@ -42,8 +42,13 @@ fi
 mkdir -p ${cache_mount}/${cache_team}
 mkdir -p $(dirname ${cache_dir})
 
-ln -s ${cache_mount}/${cache_team} ${cache_dir}
+if [ ! -L ${cache_dir}/${cache_team} ]; then
+  ln -s ${cache_mount}/${cache_team} ${cache_dir}
+fi
+
 # deprecated old cache dir location
-ln -s ${cache_mount}/${cache_team} /halfpipe-shared-cache
+if [ ! -L /halfpipe-shared-cache ]; then
+  ln -s ${cache_mount}/${cache_team} /halfpipe-shared-cache
+fi
 
 exec bash -c "$@"
