@@ -15,7 +15,11 @@ cache="$(echo $PWD | cut -d/ -f1-4)/docker-images"
 if [ -d "${cache}" ]; then
   for image in ${cache}/*/ ; do
     echo "Loading $(cat "${image}repository"):$(cat "${image}tag") .."
-    docker load -i "${image}image"
+    if [ -f "${image}image.tar" ]; then
+      docker load -i "${image}image.tar"
+    else
+      docker load -i "${image}image"
+    fi
     docker tag \
       "$(cat "${image}image-id")" \
       "$(cat "${image}repository"):$(cat "${image}tag")"
