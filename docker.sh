@@ -23,6 +23,7 @@ if [ -d "${cache}" ]; then
 fi
 
 function cleanup {
+  echo 'cleanup: unmounting cache'
   umount ${cache_mount}
 }
 

@@ -77,7 +77,7 @@ start_docker() {
   sleep 1
 
   until docker info >/dev/null 2>&1; do
-    echo waiting for docker to come up...
+    echo 'waiting for docker to come up...'
     sleep 1
   done
 
@@ -86,6 +86,7 @@ start_docker() {
 }
 
 stop_docker() {
+  echo 'stopping docker'
   local pid=$(cat /tmp/docker.pid)
   if [ -z "$pid" ]; then
     return 0
