@@ -29,4 +29,6 @@ RUN curl https://download.docker.com/linux/static/stable/x86_64/docker-${DOCKER_
 COPY docker-lib.sh /docker-lib.sh
 COPY docker.sh /usr/local/bin/
 
+RUN /usr/bin/dumb-init -- docker.sh docker-compose pull
+
 ENTRYPOINT ["/usr/bin/dumb-init", "--", "docker.sh"]

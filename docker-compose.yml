@@ -1,0 +1,16 @@
+version: '3'
+services:
+  app:
+    image: appropriate/curl
+    volumes:
+    - .:/app
+    command: "sh /app/test.sh"
+    depends_on:
+    - dependency
+
+  dependency:
+    image: nginx
+    volumes:
+    - ./src:/usr/share/nginx/html:ro
+    ports:
+    - "80:80"
