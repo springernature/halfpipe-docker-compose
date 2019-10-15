@@ -4,22 +4,11 @@ resources:
     source:
       private_key: ((github.private_key))
       uri: git@github.com:springernature/halfpipe-docker-compose.git
-      branch: master
-
-  - name: version
-    type: semver
-    source:
-      driver: git
-      uri: git@github.com:springernature/halfpipe-docker-compose.git
-      branch: version
-      file: version
-      private_key: ((halfpipe-docker-compose.deploy-key))
-      initial_version: 1.0.0
-
+      branch: with-cache
   - name: docker
     type: docker-image
     source:
-      repository: eu.gcr.io/halfpipe-io/halfpipe-docker-compose
+      repository: eu.gcr.io/halfpipe-io/halfpipe-docker-compose-with-cache
       username: _json_key
       password: ((gcr.private_key))
 
@@ -29,111 +18,8 @@ jobs:
     plan:
       - get: git
         trigger: true
-      - get: version
-        params: {bump: minor}
       - put: docker
         params:
           build: git
-          tag: version/version
-          tag_as_latest: true
-          additional_tags: git/tags_dev
-          skip_download: true
-      - put: version
-        params:
-          file: version/version
-
-  - name: test
-    serial: true
-    plan:
-      - get: git
-        trigger: true
-        passed: [build]
-      - get: docker
-        trigger: true
-        passed: [build]
-        params:
-          skip_download: true
-      - task: test success
-        privileged: true
-        config:
-          platform: linux
-          image_resource:
-            type: docker-image
-            source:
-              repository: eu.gcr.io/halfpipe-io/halfpipe-docker-compose
-              username: _json_key
-              password: ((gcr.private_key))
-          params:
-            HALFPIPE_CACHE_TEAM: halfpipe-docker-compose-test
-          run:
-            path: docker.sh
-            args:
-            - -c
-            - |
-              set -e
-              docker-compose run -e HALFPIPE_CACHE_TEAM app
-            dir: git/integration/01_success
-          inputs:
-            - name: git
-      - task: test missing nfs volume
-        privileged: true
-        config:
-          platform: linux
-          image_resource:
-            type: docker-image
-            source:
-              repository: eu.gcr.io/halfpipe-io/halfpipe-docker-compose
-              username: _json_key
-              password: ((gcr.private_key))
-          params:
-            HALFPIPE_CACHE_HOST: not-here-host
-          run:
-            path: docker.sh
-            args:
-            - -c
-            - |
-              set -e
-              docker-compose run -e HALFPIPE_CACHE_HOST app
-            dir: git/integration/02_unavailable
-          inputs:
-            - name: git
-      - task: test backward compatibility
-        privileged: true
-        config:
-          platform: linux
-          image_resource:
-            type: docker-image
-            source:
-              repository: eu.gcr.io/halfpipe-io/halfpipe-docker-compose
-              username: _json_key
-              password: ((gcr.private_key))
-          params:
-            HALFPIPE_CACHE_TEAM: halfpipe-docker-compose-test
-          run:
-            path: docker.sh
-            args:
-              - -c
-              - |
-                set -e
-                docker-compose run -e HALFPIPE_CACHE_TEAM app
-            dir: git/integration/03_backward_compatibility
-          inputs:
-            - name: git
-
-  - name: deploy
-    serial: true
-    plan:
-      - get: git
-        passed: [test]
-      - get: docker
-        params:
-          save: true
-      - get: version
-      - put: docker
-        params:
-          load: docker
-          cache: true
-          cache_tag: version/version
-          tag: git/tags_stable
           tag_as_latest: true
           skip_download: true
