@@ -33,6 +33,8 @@ function cleanup {
 }
 
 trap cleanup EXIT
+trap stop_docker EXIT
+
 (
 set -e
 mkdir -p ${cache_mount}
