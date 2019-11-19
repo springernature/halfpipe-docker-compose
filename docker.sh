@@ -59,9 +59,4 @@ fi
 
 bash -c "$@"
 EXIT_STATUS=$?
-
-echo "Stopping docker and unmounting NFS"
-stop_docker
-cleanup
-
 exit $EXIT_STATUS

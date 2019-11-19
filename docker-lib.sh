@@ -94,5 +94,5 @@ stop_docker() {
 
   kill -TERM $pid
   sleep 5
-  kill -9 $pid || true
+  kill -9 $pid || true 2> /dev/null
 }
