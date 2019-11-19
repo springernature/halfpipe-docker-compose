@@ -57,4 +57,11 @@ if [ ! -L /halfpipe-shared-cache ]; then
   ln -s ${cache_mount}/${cache_team} /halfpipe-shared-cache
 fi
 
-exec bash -c "$@"
+bash -c "$@"
+EXIT_STATUS=$?
+
+echo "Stopping docker and unmounting NFS"
+stop_docker
+cleanup
+
+exit $EXIT_STATUS
