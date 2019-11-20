@@ -38,9 +38,10 @@ function cleanup {
   echo "cleaning up"
   stop_docker
   unmountNFS
+  exit "$1"
 }
 
-trap cleanup EXIT
+trap 'cleanup $?' EXIT
 
 (
 set -e
