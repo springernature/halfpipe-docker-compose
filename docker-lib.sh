@@ -90,7 +90,17 @@ stop_docker() {
     return 0
   fi
 
-  kill -TERM $pid
+  ps -p $pid &> /dev/null
+  if [ $? -eq 0 ]; then
+    echo PID existed, gonna try to cleanly shut it down
+    kill -TERM $pid
+  fi
   sleep 5
-  kill -9 $pid || true 2> /dev/null
+  ps -p $pid &> /dev/null
+  if [ $? -eq 0 ]; then
+    echo PID existed, gonna try to kill -9
+    kill -9 $pid
+  fi
+
+  exit 0
 }
