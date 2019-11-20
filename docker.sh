@@ -27,13 +27,20 @@ if [ -d "${cache}" ]; then
   done
 fi
 
-function cleanup {
+function unmountNFS{
   echo 'unmounting cache'
   umount ${cache_mount}
 }
 
+function cleanup {
+  echo
+  echo "======="
+  echo "cleaning up"
+  stop_docker
+  unmountNFS
+}
+
 trap cleanup EXIT
-trap stop_docker EXIT
 
 (
 set -e
@@ -61,8 +68,4 @@ fi
 
 bash -c "$@"
 EXIT_STATUS=$?
-
-echo
-echo "======="
-echo "cleaning up"
 exit $EXIT_STATUS
