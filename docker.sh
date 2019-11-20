@@ -27,7 +27,7 @@ if [ -d "${cache}" ]; then
   done
 fi
 
-function unmountNFS{
+function unmountNFS {
   echo 'unmounting cache'
   umount ${cache_mount}
 }
