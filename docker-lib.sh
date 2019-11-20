@@ -92,15 +92,12 @@ stop_docker() {
 
   ps -p $pid &> /dev/null
   if [ $? -eq 0 ]; then
-    echo PID existed, gonna try to cleanly shut it down
     kill -TERM $pid
   fi
   sleep 5
   ps -p $pid &> /dev/null
   if [ $? -eq 0 ]; then
-    echo PID existed, gonna try to kill -9
+    echo docker did not cleanly shut down, gonna kill -9 it
     kill -9 $pid
   fi
-
-  exit 0
 }
