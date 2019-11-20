@@ -68,5 +68,3 @@ if [ ! -L /halfpipe-shared-cache ]; then
 fi
 
 bash -c "$@"
-EXIT_STATUS=$?
-exit $EXIT_STATUS
