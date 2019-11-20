@@ -28,7 +28,7 @@ if [ -d "${cache}" ]; then
 fi
 
 function cleanup {
-  echo 'cleanup: unmounting cache'
+  echo 'unmounting cache'
   umount ${cache_mount}
 }
 
@@ -61,4 +61,8 @@ fi
 
 bash -c "$@"
 EXIT_STATUS=$?
+
+echo
+echo "======="
+echo "cleaning up"
 exit $EXIT_STATUS
