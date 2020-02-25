@@ -2,7 +2,7 @@ resources:
   - name: git
     type: git
     source:
-      private_key: ((github.private_key))
+      private_key: ((halfpipe-github.private_key))
       uri: git@github.com:springernature/halfpipe-docker-compose.git
       branch: master
 
@@ -21,7 +21,7 @@ resources:
     source:
       repository: eu.gcr.io/halfpipe-io/halfpipe-docker-compose
       username: _json_key
-      password: ((gcr.private_key))
+      password: ((halfpipe-gcr.private_key))
 
 jobs:
   - name: build
@@ -62,7 +62,7 @@ jobs:
             source:
               repository: eu.gcr.io/halfpipe-io/halfpipe-docker-compose
               username: _json_key
-              password: ((gcr.private_key))
+              password: ((halfpipe-gcr.private_key))
           params:
             HALFPIPE_CACHE_TEAM: halfpipe-docker-compose-test
           run:
@@ -84,7 +84,7 @@ jobs:
             source:
               repository: eu.gcr.io/halfpipe-io/halfpipe-docker-compose
               username: _json_key
-              password: ((gcr.private_key))
+              password: ((halfpipe-gcr.private_key))
           params:
             HALFPIPE_CACHE_HOST: not-here-host
           run:
@@ -106,7 +106,7 @@ jobs:
             source:
               repository: eu.gcr.io/halfpipe-io/halfpipe-docker-compose
               username: _json_key
-              password: ((gcr.private_key))
+              password: ((halfpipe-gcr.private_key))
           params:
             HALFPIPE_CACHE_TEAM: halfpipe-docker-compose-test
           run:
