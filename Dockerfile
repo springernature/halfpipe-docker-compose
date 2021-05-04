@@ -14,6 +14,7 @@ RUN apt-get update && apt-get install -y \
     libdevmapper-dev \
     nfs-common \
     openssh-server \
+    pigz \
     python-pip \
     python-backports.ssl-match-hostname && \
     apt-get autoremove -y && apt-get clean
