@@ -55,21 +55,8 @@ start_docker() {
     mount -o remount,rw /proc/sys
   fi
 
-  local server_args=""
-
-  for registry in $1; do
-    server_args="${server_args} --insecure-registry ${registry}"
-  done
-
-  if [ -n "$2" ]; then
-    server_args="${server_args} --registry-mirror=$2"
-  fi
-
-  if [ -n "$3" ]; then
-    server_args="${server_args} -g=$3"
-  fi
-
-  dockerd --data-root /scratch/docker ${server_args} >/tmp/docker.log 2>&1 &
+  echo "starting dockerd with data-root=${DATA_ROOT:-/scratch/docker}"
+  dockerd --data-root ${DATA_ROOT:-/scratch/docker} >/tmp/docker.log 2>&1 &
   echo $! > /tmp/docker.pid
 
   sleep 1
@@ -79,8 +66,14 @@ start_docker() {
     sleep 1
   done
 
+  set -x
   docker --version
   docker-compose --version
+  docker system prune --volumes -f
+  docker images
+  docker info
+  echo
+  set +x
 }
 
 stop_docker() {

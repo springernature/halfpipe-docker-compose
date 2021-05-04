@@ -6,27 +6,6 @@ readonly cache_share="${HALFPIPE_CACHE_SHARE:-/cache}"
 readonly cache_team="${HALFPIPE_CACHE_TEAM:-common}"
 readonly cache_dir="${HALFPIPE_CACHE_DIR:-/var/halfpipe/shared-cache}"
 
-source /docker-lib.sh
-start_docker
-
-# load any saved images added by resources
-cache="$(echo $PWD | cut -d/ -f1-4)/docker-images"
-
-if [ -d "${cache}" ]; then
-  for image in ${cache}/*/ ; do
-    if [ -f "${image}image.tar" ]; then
-      echo "Loading ${image} .."
-      docker load -i "${image}image.tar"
-    else
-      echo "Loading $(cat "${image}repository"):$(cat "${image}tag") .."
-      docker load -i "${image}image"
-      docker tag \
-        "$(cat "${image}image-id")" \
-        "$(cat "${image}+"):$(cat "${image}tag")"
-    fi
-  done
-fi
-
 function unmountNFS {
   echo 'unmounting cache'
   umount ${cache_mount}
@@ -42,6 +21,11 @@ function cleanup {
 }
 
 trap 'cleanup $?' EXIT
+
+
+
+source /docker-lib.sh
+start_docker
 
 (
 set -e
