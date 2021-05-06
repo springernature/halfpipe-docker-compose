@@ -7,6 +7,10 @@ sanitize_cgroups() {
 
   mount -o remount,rw /sys/fs/cgroup
 
+  # Skip AppArmor
+  # See: https://github.com/moby/moby/commit/de191e86321f7d3136ff42ff75826b8107399497
+  export container=docker
+
   sed -e 1d /proc/cgroups | while read sys hierarchy num enabled; do
     if [ "$enabled" != "1" ]; then
       # subsystem disabled; skip
@@ -55,9 +59,10 @@ start_docker() {
     mount -o remount,rw /proc/sys
   fi
 
-  echo "starting dockerd with data-root=${DATA_ROOT:-/scratch/docker}"
-  dockerd --data-root ${DATA_ROOT:-/scratch/docker} >/tmp/docker.log 2>&1 &
-  echo $! > /tmp/docker.pid
+
+  local docker_opts="--data-root ${HALFPIPE_DOCKER_DATA_ROOT} --registry-mirror https://eu-mirror.gcr.io --max-concurrent-downloads 6 --pidfile /scratch/docker.pid"
+  echo "starting docker with opts ${docker_opts}"
+  dockerd ${docker_opts}  >/scratch/docker.log 2>&1 &
 
   sleep 1
 
@@ -66,19 +71,18 @@ start_docker() {
     sleep 1
   done
 
-  set -x
+  #docker info
   docker --version
   docker-compose --version
   docker system prune --volumes -f
   docker images
-  docker info
   echo
-  set +x
 }
 
 stop_docker() {
   echo 'stopping docker'
-  local pid=$(cat /tmp/docker.pid)
+  docker system prune --volumes -f
+  local pid=$(cat /scratch/docker.pid)
   if [ -z "$pid" ]; then
     return 0
   fi
@@ -90,7 +94,7 @@ stop_docker() {
   sleep 5
   ps -p $pid &> /dev/null
   if [ $? -eq 0 ]; then
-    echo docker did not cleanly shut down, gonna kill -9 it
+    echo 'docker did not cleanly shut down, gonna kill -9 it'
     kill -9 $pid
   fi
 }
