@@ -70,6 +70,9 @@ start_docker() {
     echo 'waiting for docker to come up...'
     sleep 1
   done
+
+  docker --version
+  docker-compose --version
 }
 
 stop_docker() {
@@ -89,4 +92,9 @@ stop_docker() {
     echo 'docker did not cleanly shut down, gonna kill -9 it'
     kill -9 $pid
   fi
+}
+
+cleanup_docker() {
+  [[ -n "$(docker container ls -aq)" ]] && docker container rm --force --volumes $(docker container ls -aq)
+  docker system prune --volumes --force
 }

@@ -44,13 +44,14 @@ function unmount_nfs {
 
 function save_cache {
   if [[ "${HALFPIPE_DOCKER_CACHE_ENABLED}" == "true" ]]; then
-    #if [[ -f ${HALFPIPE_DOCKER_CACHE_TAR} ]]; then
-    #  echo "docker cache already exists"
-    #else
+    # find cache modified less than 1 day ago (1440 mins)
+    if [[ "$(find ${HALFPIPE_DOCKER_CACHE_TAR} -mmin -10 -printf "found" 2>/dev/null)" == "found" ]]; then
+      echo "recent docker cache exists"
+    else
       echo "caching docker state"
       (cd ${HALFPIPE_DOCKER_DATA_ROOT}; tar -cf ${HALFPIPE_DOCKER_CACHE_TAR} .)
-      ls -lh ${HALFPIPE_DOCKER_CACHE_TAR}
-    #fi
+    fi
+    ls -lh ${HALFPIPE_DOCKER_CACHE_TAR}
   fi
 }
 
@@ -69,13 +70,13 @@ function restore_cache {
   fi
 }
 
+
 function cleanup {
   echo
   echo "============================"
   echo "task finished (exit code: $1)"
   echo "============================"
-  [[ -n "$(docker container ls -aq)" ]] && docker container rm --force --volumes $(docker container ls -aq)
-  docker system prune --volumes --force
+  cleanup_docker
   stop_docker
   unmount_nfs
   save_cache
@@ -90,9 +91,7 @@ source /docker-lib.sh
 restore_cache
 mount_nfs
 start_docker
-docker --version
-docker-compose --version
-docker system prune --volumes --force
+cleanup_docker
 docker images
 
 echo "============="
