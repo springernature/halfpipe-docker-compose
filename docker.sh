@@ -44,9 +44,8 @@ function unmount_nfs {
 
 function save_cache {
   if [[ "${HALFPIPE_DOCKER_CACHE_ENABLED}" == "true" ]]; then
-    # find cache modified less than 1 day ago (1440 mins)
-    if [[ "$(find ${HALFPIPE_DOCKER_CACHE_TAR} -mmin -10 -printf "found" 2>/dev/null)" == "found" ]]; then
-      echo "recent docker cache exists"
+    if [[ -f ${HALFPIPE_DOCKER_CACHE_TAR} ]]; then
+      echo "docker cache exists"
     else
       echo "caching docker state"
       (cd ${HALFPIPE_DOCKER_DATA_ROOT}; tar -cf ${HALFPIPE_DOCKER_CACHE_TAR} .)
@@ -70,6 +69,15 @@ function restore_cache {
   fi
 }
 
+function delete_expired_cache {
+  # delete cache if older than n days (-mtime +n)
+  if [[ "$(find ${HALFPIPE_DOCKER_CACHE_TAR} -mtime +7 -printf "found" 2>/dev/null)" == "found" ]]; then
+    echo "deleting expired docker cache"
+    ls -lh ${HALFPIPE_DOCKER_CACHE_TAR}
+    rm ${HALFPIPE_DOCKER_CACHE_TAR}
+  fi
+}
+
 
 function cleanup {
   echo
@@ -88,6 +96,7 @@ function cleanup {
 trap 'cleanup $?' EXIT
 source /docker-lib.sh
 
+delete_expired_cache
 restore_cache
 mount_nfs
 start_docker
