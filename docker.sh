@@ -44,16 +44,13 @@ function unmount_nfs {
 
 function save_cache {
   if [[ "${HALFPIPE_DOCKER_CACHE_ENABLED}" == "true" ]]; then
-    if [[ -f ${HALFPIPE_DOCKER_CACHE_TAR} ]]; then
-      echo "docker cache already exists"
-    else
+    #if [[ -f ${HALFPIPE_DOCKER_CACHE_TAR} ]]; then
+    #  echo "docker cache already exists"
+    #else
       echo "caching docker state"
-      (
-        cd ${HALFPIPE_DOCKER_DATA_ROOT}
-        tar -cf ${HALFPIPE_DOCKER_CACHE_TAR} .
-        ls -lh ${HALFPIPE_DOCKER_CACHE_TAR}
-      )
-    fi
+      (cd ${HALFPIPE_DOCKER_DATA_ROOT}; tar -cf ${HALFPIPE_DOCKER_CACHE_TAR} .)
+      ls -lh ${HALFPIPE_DOCKER_CACHE_TAR}
+    #fi
   fi
 }
 
@@ -62,9 +59,10 @@ function restore_cache {
     if [[ -f ${HALFPIPE_DOCKER_CACHE_TAR} ]]; then
       echo "restoring docker cache"
       ls -lh ${HALFPIPE_DOCKER_CACHE_TAR}
-      (mkdir -p ${HALFPIPE_DOCKER_DATA_ROOT}; cd ${HALFPIPE_DOCKER_DATA_ROOT}; tar -xf ${HALFPIPE_DOCKER_CACHE_TAR})
+      mkdir -p ${HALFPIPE_DOCKER_DATA_ROOT}
+      (cd ${HALFPIPE_DOCKER_DATA_ROOT}; tar -xf ${HALFPIPE_DOCKER_CACHE_TAR})
     else
-      echo "no docker cache available"
+      echo "no docker cache found"
     fi
   else
     echo "docker cache disabled. To enable, set HALFPIPE_DOCKER_CACHE_ENABLED=true"
@@ -73,8 +71,11 @@ function restore_cache {
 
 function cleanup {
   echo
-  echo "======="
-  echo "cleaning up"
+  echo "============================"
+  echo "task finished (exit code: $1)"
+  echo "============================"
+  [[ -n "$(docker container ls -aq)" ]] && docker container rm --force --volumes $(docker container ls -aq)
+  docker system prune --volumes --force
   stop_docker
   unmount_nfs
   save_cache
@@ -89,4 +90,12 @@ source /docker-lib.sh
 restore_cache
 mount_nfs
 start_docker
+docker --version
+docker-compose --version
+docker system prune --volumes --force
+docker images
+
+echo "============="
+echo "starting task"
+echo "============="
 bash -c "$@"

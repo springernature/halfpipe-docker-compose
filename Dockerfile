@@ -1,7 +1,7 @@
 # Inspired by https://github.com/meAmidos/dcind
 FROM debian:buster-slim
 
-ENV DOCKER_VERSION="20.10.6"
+ENV DOCKER_VERSION="19.03.0"
 ENV DOCKER_COMPOSE_VERSION="1.24.1"
 
 # Install everything

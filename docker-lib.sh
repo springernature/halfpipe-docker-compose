@@ -70,18 +70,10 @@ start_docker() {
     echo 'waiting for docker to come up...'
     sleep 1
   done
-
-  #docker info
-  docker --version
-  docker-compose --version
-  docker system prune --volumes -f
-  docker images
-  echo
 }
 
 stop_docker() {
   echo 'stopping docker'
-  docker system prune --volumes -f
   local pid=$(cat /scratch/docker.pid)
   if [ -z "$pid" ]; then
     return 0
