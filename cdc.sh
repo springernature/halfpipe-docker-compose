@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 
+echo "Running cdc script"
 # write git key to file
 echo "${CONSUMER_GIT_KEY}" > .gitkey
 chmod 600 .gitkey
-set -ex
+set -exu
 # get current revision of consumer, revert to HEAD if not found
 REVISION=$(curl -fsSL "${CONSUMER_HOST}/internal/version" | jq -r '.revision' || echo "")
 if [ "${REVISION}" == "" ]; then
