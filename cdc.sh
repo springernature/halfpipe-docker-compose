@@ -31,4 +31,5 @@ docker-compose run --no-deps \
   -e CDC_PROVIDER_NAME=${PROVIDER_NAME} \
   -e CDC_PROVIDER_VERSION=${GIT_REVISION} \
   ${ENV_OPTIONS} \
+  ${VOLUME_OPTIONS} \
   ${DOCKER_COMPOSE_SERVICE:-code}
