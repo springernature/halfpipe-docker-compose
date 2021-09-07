@@ -6,7 +6,7 @@ readonly cache_share="${HALFPIPE_CACHE_SHARE:-/cache}"
 readonly cache_team="${HALFPIPE_CACHE_TEAM:-common}"
 readonly cache_dir="${HALFPIPE_CACHE_DIR:-/var/halfpipe/shared-cache}"
 
-source /docker-lib.sh
+source docker-lib.sh
 start_docker
 
 # load any saved images added by resources

@@ -1,11 +1,13 @@
 #!/usr/bin/env bash
-set -exu
+set -euo pipefail
 
 echo "Running cdc script"
 
 # write git key to file
 echo "${CONSUMER_GIT_KEY}" > .gitkey
 chmod 600 .gitkey
+
+set -x
 
 # get current revision of consumer, revert to HEAD if not found
 REVISION=$(curl -fsSL "${CONSUMER_HOST}/internal/version" | jq -r '.revision' || echo "")
@@ -17,10 +19,11 @@ fi
 # clone consumer into /scratch/consumer. dir may already exist when concourse restarts task
 rm -rf /scratch/consumer
 GIT_SSH_COMMAND="ssh -o StrictHostKeychecking=no -i .gitkey" git clone ${GIT_CLONE_OPTIONS} ${CONSUMER_GIT_URI} /scratch/consumer
-cd /scratch/consumer/${CONSUMER_PATH}
+cd /scratch/consumer
 
 # checkout revision
 git checkout ${REVISION}
+cd /scratch/consumer/${CONSUMER_PATH}
 
 # run the tests with docker-compose
 # note: old system reads CF manifest env vars and sets them all here
