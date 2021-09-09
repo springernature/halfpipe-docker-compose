@@ -69,6 +69,7 @@ start_docker() {
     server_args="${server_args} -g=$3"
   fi
 
+  echo "starting dockerd with args: [${server_args}]"
   dockerd --data-root /scratch/docker ${server_args} >/tmp/docker.log 2>&1 &
   echo $! > /tmp/docker.pid
 
