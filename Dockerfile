@@ -26,8 +26,7 @@ RUN curl https://download.docker.com/linux/static/stable/x86_64/docker-${DOCKER_
 
 
 # Include useful functions to start/stop docker daemon in garden-runc containers in Concourse CI.
-# Example: source /docker-lib.sh && start_docker
-COPY docker-lib.sh /docker-lib.sh
-COPY docker.sh /usr/local/bin/
+# Example: source docker-lib.sh && start_docker
+COPY bin/ /usr/local/bin/
 
 ENTRYPOINT ["/usr/bin/dumb-init", "--", "docker.sh"]
