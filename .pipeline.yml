@@ -1,6 +1,7 @@
 resources:
   - name: git
     type: git
+    check_every: 10m
     source:
       private_key: ((halfpipe-github.private_key))
       uri: git@github.com:springernature/halfpipe-docker-compose.git
@@ -8,6 +9,7 @@ resources:
 
   - name: version
     type: semver
+    check_every: 24h
     source:
       driver: git
       uri: git@github.com:springernature/halfpipe-docker-compose.git
@@ -18,6 +20,7 @@ resources:
 
   - name: docker
     type: docker-image
+    check_every: 24h
     source:
       repository: eu.gcr.io/halfpipe-io/halfpipe-docker-compose
       username: _json_key
