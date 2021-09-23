@@ -14,7 +14,7 @@ is_covenant_available() {
 }
 
 sanitise_cdc_name() {
-    echo "$1" | rev | cut -d/ -f1 | rev
+    echo "${1/\//%2F}"
 }
 
 cdc_has_been_successful() {
