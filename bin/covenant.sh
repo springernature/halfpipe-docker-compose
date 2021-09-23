@@ -9,6 +9,7 @@ is_covenant_available() {
     if curl -m 1 -Ls "$_COVENANT_URL" >/dev/null 2>&1; then
         return 0
     else
+        echo -e "${LIGHT_RED}* Covenant is not available; skipping ${NC}"
         return 1
     fi
 }
@@ -24,7 +25,6 @@ cdc_has_been_successful() {
     local CDC_CONSUMER_VERSION="${4}"
 
     if ! is_covenant_available; then
-        echo -e "${LIGHT_RED}* Covenant is not available; skipping Covenant check${NC}"
         return 1
     else
         local RESULT
@@ -47,9 +47,7 @@ record_cdc_result() {
     local CDC_CONSUMER_VERSION="${4}"
     local RESULT="${5}"
 
-    if ! is_covenant_available; then
-        echo -e "${LIGHT_RED}* Covenant is not available; skipping Covenant update${NC}"
-    else
+    if  is_covenant_available; then
         echo -e "${GREEN}* This CDC has completed with result ${BLUE}$RESULT${GREEN} - updating Covenant${NC}"
         echo curl -X POST -Ls "$_COVENANT_URL/api/v1/result/$CDC_PROVIDER_NAME/$CDC_PROVIDER_VERSION/$CDC_CONSUMER_NAME/$CDC_CONSUMER_VERSION" -d "$RESULT"
     fi
