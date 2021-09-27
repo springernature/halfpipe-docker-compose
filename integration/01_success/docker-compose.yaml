@@ -1,7 +1,7 @@
 version: '3'
 services:
   app:
-    image: eu.gcr.io/halfpipe-io/build-bash bash
+    image: eu.gcr.io/halfpipe-io/build-bash
     command: bash -c 'ip a'
     working_dir: /root/code
     volumes:
