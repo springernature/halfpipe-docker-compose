@@ -55,19 +55,7 @@ start_docker() {
     mount -o remount,rw /proc/sys
   fi
 
-  local server_args=""
-
-  for registry in $1; do
-    server_args="${server_args} --insecure-registry ${registry}"
-  done
-
-  if [ -n "$2" ]; then
-    server_args="${server_args} --registry-mirror=$2"
-  fi
-
-  if [ -n "$3" ]; then
-    server_args="${server_args} -g=$3"
-  fi
+  local server_args="--mtu 1460"
 
   echo "starting dockerd with args: [${server_args}]"
   dockerd --data-root /scratch/docker ${server_args} >/tmp/docker.log 2>&1 &
