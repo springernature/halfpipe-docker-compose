@@ -49,6 +49,6 @@ record_cdc_result() {
 
     if  is_covenant_available; then
         echo -e "${GREEN}* This CDC has completed with result ${BLUE}$RESULT${GREEN} - updating Covenant${NC}"
-        echo curl -X POST -Ls "$_COVENANT_URL/api/v1/result/$CDC_PROVIDER_NAME/$CDC_PROVIDER_VERSION/$CDC_CONSUMER_NAME/$CDC_CONSUMER_VERSION" -d "$RESULT"
+        curl -X POST -Ls "$_COVENANT_URL/api/v1/result/$CDC_PROVIDER_NAME/$CDC_PROVIDER_VERSION/$CDC_CONSUMER_NAME/$CDC_CONSUMER_VERSION" -d "$RESULT"
     fi
 }

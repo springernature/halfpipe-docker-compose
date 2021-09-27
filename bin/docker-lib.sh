@@ -57,7 +57,7 @@ start_docker() {
 
   local server_args="--mtu 1460"
 
-  echo "starting dockerd with args: [${server_args}]"
+  echo "starting dockerd with args: [ ${server_args} ]"
   dockerd --data-root /scratch/docker ${server_args} >/tmp/docker.log 2>&1 &
   echo $! > /tmp/docker.pid
 
