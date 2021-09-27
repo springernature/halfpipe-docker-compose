@@ -25,7 +25,7 @@ echo "consumer version: ${REVISION}"
 
 # return now if cdc has already been successful
 if use_covenant; then
-  cdc_has_been_successful "${PROVIDER_NAME}" "${GIT_REVISION}" "${CONSUMER_NAME}" "${REVISION}" && return 0
+  cdc_has_been_successful "${PROVIDER_NAME}" "${GIT_REVISION}" "${CONSUMER_NAME}" "${REVISION}" && exit 0
 else
   echo "covenant disabled"
 fi
