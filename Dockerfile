@@ -22,8 +22,8 @@ RUN apt-get update && apt-get install -y \
 RUN curl https://download.docker.com/linux/static/stable/x86_64/docker-${DOCKER_VERSION}.tgz | tar zx && \
     mv /docker/* /bin/ && \
     chmod +x /bin/docker* && \
-    pip install docker-compose==${DOCKER_COMPOSE_VERSION}
-
+    pip install docker-compose==${DOCKER_COMPOSE_VERSION} && \
+    sed -i "s/Network(client, name, 'default')/Network(client, name, 'default', driver_opts={'com.docker.network.driver.mtu': '1460'})/" /usr/local/lib/python2.7/dist-packages/compose/network.py
 
 # Include useful functions to start/stop docker daemon in garden-runc containers in Concourse CI.
 # Example: source docker-lib.sh && start_docker
