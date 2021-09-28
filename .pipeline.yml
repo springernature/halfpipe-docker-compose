@@ -68,12 +68,14 @@ jobs:
               password: ((halfpipe-gcr.private_key))
           params:
             HALFPIPE_CACHE_TEAM: halfpipe-docker-compose-test
+            GCR_PRIVATE_KEY: ((halfpipe-gcr.private_key))
           run:
             path: docker.sh
             args:
             - -c
             - |
               set -e
+              docker login -u _json_key -p "$GCR_PRIVATE_KEY" https://eu.gcr.io
               docker-compose run -e HALFPIPE_CACHE_TEAM app
             dir: git/integration/01_success
           inputs:
