@@ -47,7 +47,6 @@ sanitize_cgroups() {
 start_docker() {
 
   echo "Halfpipe docker-in-docker https://ee.public.springernature.app/rel-eng/"
-  echo "version:$BUILD_VERSION revision:$GIT_REVISION"
   echo ""
 
   mkdir -p /var/log

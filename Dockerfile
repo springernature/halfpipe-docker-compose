@@ -3,8 +3,6 @@ FROM debian:buster-slim
 
 ENV DOCKER_VERSION="19.03.0"
 ENV DOCKER_COMPOSE_VERSION="1.24.1"
-ENV BUILD_VERSION=${BUILD_VERSION:-LOCAL}
-ENV GIT_REVISION=${GIT_REVISION:-HEAD}
 
 # Install everything
 RUN apt-get update && apt-get install -y \
