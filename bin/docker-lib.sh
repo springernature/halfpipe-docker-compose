@@ -45,6 +45,11 @@ sanitize_cgroups() {
 }
 
 start_docker() {
+
+  echo "Halfpipe docker-in-docker https://ee.public.springernature.app/rel-eng/"
+  echo "version:$BUILD_VERSION revision:$GIT_REVISION"
+  echo ""
+
   mkdir -p /var/log
   mkdir -p /var/run
 
@@ -75,13 +80,15 @@ start_docker() {
   # Determine IP address at which dockerd and spawned containers can be reached
   DOCKER_IP=$(ip route | awk '/docker0/ { print $9 }')
   export DIND_HOST="tcp://${DOCKER_IP}:2375"
-  echo "  Docker daemon will be available in the build container:"
-  echo "    at /var/run/docker.sock"
-  echo "    at tcp://${DOCKER_IP}:2375 (no TLS)"
-  echo "  Containers spawned by the build container will be accessible at ${DOCKER_IP} (do not hardcode this value)"
-  echo "    set DOCKER_HOST in your container to the value of $DIND_HOST. e.g. in docker-compose.yml:"
-  echo "      environment:"
-  echo '        DOCKER_HOST: $DIND_HOST'
+  echo ""
+  echo "Docker daemon will be available in the build container:"
+  echo "  at /var/run/docker.sock"
+  echo "  at tcp://${DOCKER_IP}:2375 (no TLS)"
+  echo "Containers spawned by the build container will be accessible at ${DOCKER_IP} (do not hardcode this value)"
+  echo '  set DOCKER_HOST in your container to the value of $DIND_HOST. e.g. in docker-compose.yml:'
+  echo "    environment:"
+  echo '      DOCKER_HOST: $DIND_HOST'
+  echo ""
 }
 
 stop_docker() {
