@@ -55,10 +55,10 @@ start_docker() {
     mount -o remount,rw /proc/sys
   fi
 
-  local server_args="--mtu 1460"
+  local server_args="--data-root /scratch/docker -H tcp://0.0.0.0:2375 -H unix:///var/run/docker.sock --mtu 1460"
 
   echo "starting dockerd with args: [ ${server_args} ]"
-  dockerd --data-root /scratch/docker ${server_args} >/tmp/docker.log 2>&1 &
+  dockerd ${server_args} >/tmp/docker.log 2>&1 &
   echo $! > /tmp/docker.pid
 
   sleep 1
@@ -70,6 +70,18 @@ start_docker() {
 
   docker --version
   docker-compose --version
+
+  # see https://github.com/testcontainers/dind-drone-plugin
+  # Determine IP address at which dockerd and spawned containers can be reached
+  DOCKER_IP=$(ip route | awk '/docker0/ { print $9 }')
+  export DIND_HOST="tcp://${DOCKER_IP}:2375"
+  echo "  Docker daemon will be available in the build container:"
+  echo "    at /var/run/docker.sock"
+  echo "    at tcp://${DOCKER_IP}:2375 (no TLS)"
+  echo "  Containers spawned by the build container will be accessible at ${DOCKER_IP} (do not hardcode this value)"
+  echo "    set DOCKER_HOST in your container to the value of $DIND_HOST. e.g. in docker-compose.yml:"
+  echo "      environment:"
+  echo '        DOCKER_HOST: $DIND_HOST'
 }
 
 stop_docker() {

@@ -9,6 +9,7 @@ RUN apt-get update && apt-get install -y \
     curl \
     dumb-init \
     git \
+    iproute2 \
     iptables \
     jq \
     libdevmapper-dev \
