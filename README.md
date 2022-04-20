@@ -1,9 +1,34 @@
 # Halfpipe docker-compose
 
-A docker image for running docker-compose tasks
+A container running the docker daemon for times when docker-in-docker ("dind") is needed. Used by the halfpipe `docker-compose` and `consumer-integration-test` tasks.
 
-Loads saved image resources from `/tmp/build/xxxxx/docker-images`.
 
+It sets the environment variable `DIND_HOST` which can be passed into containers which need access to the docker daemon.
+
+example `docker-compose.yml`:
+```
+version: '3'
+services:
+  app:
+    image: ubuntu
+    command: ./build
+    working_dir: /work
+    volumes:
+      - .:/work
+    environment:
+      DOCKER_HOST: $DIND_HOST
+```
+
+### Docker Image Cache
+
+> This feature is not used by halfpipe since it turns out that loading an image from cache is no faster than downloading it :(
+
+The startup script supports loading saved docker image tar files. They can be passed into the task as inputs in a subdirectory under `./docker-images` - i.e. `/tmp/build/xxxxx/docker-images`.
+
+On startup the task loops through these directories and `docker load`s them.
+
+
+#### example
 ```yaml
 resources:
 - name: git
@@ -62,5 +87,3 @@ jobs:
       - name: nginx
         path: docker-images/nginx
 ```
-
-
