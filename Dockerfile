@@ -1,33 +1,28 @@
-# Inspired by https://github.com/meAmidos/dcind and https://github.com/mumoshu/dcind
-FROM debian:buster-slim
+# inspired by https://github.com/testcontainers/dind-drone-plugin/blob/master/Dockerfile
+FROM docker:20.10-dind
 
-ENV DOCKER_VERSION="19.03.0"
-ENV DOCKER_COMPOSE_VERSION="1.24.1"
+# Install everything we need including for cdcs
+RUN apk add --no-cache \
+  bash \
+  curl \
+  jq \
+  git
 
-# Install everything
-RUN apt-get update && apt-get install -y \
-    curl \
-    dumb-init \
-    git \
-    iproute2 \
-    iptables \
-    jq \
-    libdevmapper-dev \
-    nfs-common \
-    openssh-server \
-    pigz \
-    python-pip \
-    python-backports.ssl-match-hostname && \
-    apt-get autoremove -y && apt-get clean
+# RUN apt-get update && apt-get install -y \
+#     curl \
+#     dumb-init \
+#     git \
+#     iproute2 \
+#     iptables \
+#     jq \
+#     libdevmapper-dev \
+#     nfs-common \
+#     openssh-server \
+#     pigz \
+#     python-pip \
+#     python-backports.ssl-match-hostname && \
+#     apt-get autoremove -y && apt-get clean
 
-RUN curl https://download.docker.com/linux/static/stable/x86_64/docker-${DOCKER_VERSION}.tgz | tar zx && \
-    mv /docker/* /bin/ && \
-    chmod +x /bin/docker* && \
-    pip install docker-compose==${DOCKER_COMPOSE_VERSION} && \
-    sed -i "s/Network(client, name, 'default')/Network(client, name, 'default', driver_opts={'com.docker.network.driver.mtu': '1460'})/" /usr/local/lib/python2.7/dist-packages/compose/network.py
+COPY bin/ /halfpipe/bin/
 
-# Include useful functions to start/stop docker daemon in garden-runc containers in Concourse CI.
-# Example: source docker-lib.sh && start_docker
-COPY bin/ /usr/local/bin/
-
-ENTRYPOINT ["/usr/bin/dumb-init", "--", "docker.sh"]
+ENTRYPOINT ["/halfpipe/bin/entrypoint.sh"]

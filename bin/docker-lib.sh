@@ -59,7 +59,11 @@ start_docker() {
     mount -o remount,rw /proc/sys
   fi
 
-  local server_args="--data-root /scratch/docker -H tcp://0.0.0.0:2375 -H unix:///var/run/docker.sock --mtu 1460"
+  local server_args="
+  --data-root /scratch/docker
+  -H tcp://0.0.0.0:2375
+  -H unix:///var/run/docker.sock
+  --mtu 1460"
 
   echo "starting dockerd with args: [ ${server_args} ]"
   dockerd ${server_args} >/tmp/docker.log 2>&1 &
