@@ -1,4 +1,5 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -u
 
 run_hook_scripts() {
   for HOOK_SCRIPT in /halfpipe/bin/hooks/$1/*; do
@@ -12,67 +13,63 @@ run_hook_scripts() {
 start_dockerd() {
   echo "Starting docker daemon..."
 
+  export TINI_SUBREAPER=1
   /usr/local/bin/dockerd-entrypoint.sh dockerd \
     --data-root /scratch/docker \
     -s ${PLUGIN_STORAGE_DRIVER:-overlay2} \
     --log-level error \
+    --tls=false \
     -H tcp://0.0.0.0:2375 \
     -H unix:///var/run/docker.sock &
 
+  # wait for it
   for i in $(seq 1 30); do
-    docker ps &> /dev/null && break || true
+    docker ps &>/dev/null && break || true
+    if [[ $i -eq 30 ]]; then
+      echo "Failed to start"
+      exit 1
+    fi
     sleep 1
   done
 
-  docker ps &> /dev/null || exit 1
-  echo "docker daemon is running."
   docker --version
   docker-compose --version
 
   # Determine IP address at which dockerd and spawned containers can be reached
   DOCKER_IP=$(ip route | awk '/docker0/ { print $7 }')
   export DIND_HOST="tcp://${DOCKER_IP}:2375"
-  echo ""
-  echo "Docker daemon will be available in the build container at:"
+  echo
+  echo "Docker daemon available at:"
   echo "  /var/run/docker.sock"
-  echo "  tcp://${DOCKER_IP}:2375 (no TLS)"
-
-  echo "Available images before build:"
-  docker image ls 2>&1 | sed 's/^/   /g'
+  echo "  tcp://${DOCKER_IP}:2375 (exported as environment variable DIND_HOST)"
+  echo
 }
 
 stop_docker() {
   echo "Stopping docker daemon..."
-  if ! [ -s /var/run/docker.pid ]; then
-    return 0
-  fi
+  pkill -TERM dockerd
 
-  local pid=$(cat /var/run/docker.pid)
-  ps -p $pid &> /dev/null
-  if [ $? -eq 0 ]; then
-    kill -TERM $pid
-  fi
-  sleep 5
-  ps -p $pid &> /dev/null
-  if [ $? -eq 0 ]; then
-    echo "dockerd did not cleanly shut down, gonna kill -9 it"
-    kill -9 $pid
-  fi
+  for s in `seq 1 30`; do
+    sleep 1
+    pgrep dockerd > /dev/null || break
+    if [ $s -eq 30 ]; then
+      echo "Failed to stop nicely, trying to kill..."
+      pkill -KILL dockerd
+      sleep 5
+    fi
+  done
+  echo "Stopped"
 }
-
 
 cleanup() {
   echo
-  echo "cleaning up..."
+  echo "Cleaning up..."
   stop_docker
   run_hook_scripts cleanup
   exit "$1"
 }
 
 #############################################
-
-export PATH="$PATH:/halfpipe/bin"
-export TINI_SUBREAPER=1
 
 echo "Halfpipe docker-in-docker https://ee.public.springernature.app/rel-eng/"
 echo
