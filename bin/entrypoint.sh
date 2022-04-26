@@ -15,7 +15,7 @@ start_dockerd() {
   /usr/local/bin/dockerd-entrypoint.sh dockerd \
     --data-root /scratch/docker \
     -s ${PLUGIN_STORAGE_DRIVER:-overlay2} \
-    --log-level debug \
+    --log-level error \
     -H tcp://0.0.0.0:2375 \
     -H unix:///var/run/docker.sock &
 
