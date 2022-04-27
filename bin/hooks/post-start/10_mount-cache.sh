@@ -24,3 +24,8 @@ mkdir -p $(dirname ${cache_dir})
 if [ ! -L ${cache_dir} ]; then
   ln -s ${cache_mount}/${cache_team} ${cache_dir}
 fi
+
+# deprecated old cache dir location
+if [ ! -L /halfpipe-shared-cache ]; then
+  ln -s ${cache_mount}/${cache_team} /halfpipe-shared-cache
+fi
