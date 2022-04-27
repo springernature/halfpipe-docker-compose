@@ -20,24 +20,8 @@ RUN DOCKER_PLUGINS=$HOME/.docker/cli-plugins \
     && curl -fL https://github.com/docker/compose-switch/releases/download/v${COMPOSE_SWITCH_VERSION}/docker-compose-linux-amd64 -o /usr/local/bin/docker-compose \
     && chmod +x /usr/local/bin/docker-compose
 
-
-# RUN apt-get update && apt-get install -y \
-#     curl \
-#     dumb-init \
-#     git \
-#     iproute2 \
-#     iptables \
-#     jq \
-#     libdevmapper-dev \
-#     nfs-common \
-#     openssh-server \
-#     pigz \
-#     python-pip \
-#     python-backports.ssl-match-hostname && \
-#     apt-get autoremove -y && apt-get clean
-
 COPY bin/ /halfpipe/bin/
 
 ENV PATH="/halfpipe/bin:${PATH}"
 
-ENTRYPOINT ["/halfpipe/bin/entrypoint.sh"]
+ENTRYPOINT ["/halfpipe/bin/docker.sh"]
