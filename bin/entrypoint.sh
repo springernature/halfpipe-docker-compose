@@ -10,17 +10,86 @@ run_hook_scripts() {
   done
 }
 
+sanitize_cgroups() {
+  local cgroup="/sys/fs/cgroup"
+
+  mkdir -p "${cgroup}"
+  if ! mountpoint -q "${cgroup}"; then
+    if ! mount -t tmpfs -o uid=0,gid=0,mode=0755 cgroup "${cgroup}"; then
+      echo >&2 "Could not make a tmpfs mount. Did you use --privileged?"
+      exit 1
+    fi
+  fi
+  mount -o remount,rw "${cgroup}"
+
+  # Skip AppArmor
+  # See: https://github.com/moby/moby/commit/de191e86321f7d3136ff42ff75826b8107399497
+  export container=docker
+
+  # Mount /sys/kernel/security
+  if [[ -d /sys/kernel/security ]] && ! mountpoint -q /sys/kernel/security; then
+    if ! mount -t securityfs none /sys/kernel/security; then
+      echo >&2 "Could not mount /sys/kernel/security."
+      echo >&2 "AppArmor detection and --privileged mode might break."
+    fi
+  fi
+
+  sed -e 1d /proc/cgroups | while read sys hierarchy num enabled; do
+    if [[ "${enabled}" != "1" ]]; then
+      # subsystem disabled; skip
+      continue
+    fi
+
+    grouping="$(cat /proc/self/cgroup | cut -d: -f2 | grep "\\<${sys}\\>")"
+    if [[ -z "${grouping}" ]]; then
+      # subsystem not mounted anywhere; mount it on its own
+      grouping="${sys}"
+    fi
+
+    mountpoint="${cgroup}/${grouping}"
+
+    mkdir -p "${mountpoint}"
+
+    # clear out existing mount to make sure new one is read-write
+    if mountpoint -q "${mountpoint}"; then
+      umount "${mountpoint}"
+    fi
+
+    mount -n -t cgroup -o "${grouping}" cgroup "${mountpoint}"
+
+    if [[ "${grouping}" != "${sys}" ]]; then
+      if [[ -L "${cgroup}/${sys}" ]]; then
+        rm "${cgroup}/${sys}"
+      fi
+
+      ln -s "${mountpoint}" "${cgroup}/${sys}"
+    fi
+  done
+
+  # Initialize systemd cgroup if host isn't using systemd.
+  # Workaround for https://github.com/docker/for-linux/issues/219
+  if ! [[ -d /sys/fs/cgroup/systemd ]]; then
+    mkdir "${cgroup}/systemd"
+    mount -t cgroup -o none,name=systemd cgroup "${cgroup}/systemd"
+  fi
+}
+
 start_dockerd() {
+
+  # check for /proc/sys being mounted readonly, as systemd does
+  if grep '/proc/sys\s\+\w\+\s\+ro,' /proc/mounts >/dev/null; then
+    mount -o remount,rw /proc/sys
+  fi
+
   echo "Starting docker daemon..."
 
-  export TINI_SUBREAPER=1
-  /usr/local/bin/dockerd-entrypoint.sh dockerd \
+  dockerd \
     --data-root /scratch/docker \
     -s ${PLUGIN_STORAGE_DRIVER:-overlay2} \
     --log-level error \
     --tls=false \
     -H tcp://0.0.0.0:2375 \
-    -H unix:///var/run/docker.sock &
+    -H unix:///var/run/docker.sock &>/scratch/dockerd.log &
 
   # wait for it
   for i in $(seq 1 30); do
@@ -76,6 +145,7 @@ echo
 
 trap 'cleanup $?' EXIT
 
+sanitize_cgroups
 start_dockerd
 run_hook_scripts post-start
 
