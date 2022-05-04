@@ -1,7 +1,7 @@
 # Inspired by https://github.com/testcontainers/dind-drone-plugin/blob/master/Dockerfile
 FROM docker:20.10-dind
 
-ARG DOCKER_COMPOSE_VERSION=2.2.3
+ARG DOCKER_COMPOSE_VERSION=2.5.0
 ARG COMPOSE_SWITCH_VERSION=1.0.4
 
 # Install everything we need including for cdcs
