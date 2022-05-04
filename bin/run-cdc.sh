@@ -49,7 +49,7 @@ cd /scratch/consumer/${CONSUMER_PATH}
 set +e
 
 # run the tests with docker-compose
-docker-compose pull ${DOCKER_COMPOSE_SERVICE:-code}
+docker-compose pull --quiet ${DOCKER_COMPOSE_SERVICE:-code}
 docker-compose run --no-deps \
   --entrypoint "${CONSUMER_SCRIPT}" \
   -e DEPENDENCY_NAME=${PROVIDER_NAME} \
