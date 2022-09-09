@@ -14,7 +14,7 @@ mount -t nfs -o nolock,retry=0,soft ${cache_host}:${cache_share} ${cache_mount}
 
 if [[ 0 -eq $? ]]; then
     echo "Halfpipe shared cache available: ${cache_dir}"
-    echo "This cache is shared across all pipelines in the team '${HALFPIPE_CACHE_TEAM}'"
+    echo "This cache is shared across all pipelines in the team '${cache_team}'"
 else
     echo "Halfpipe shared cache unavailable"
 fi
