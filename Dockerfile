@@ -1,8 +1,8 @@
 # Inspired by https://github.com/testcontainers/dind-drone-plugin/blob/master/Dockerfile
-FROM docker:20.10-dind
+FROM docker:dind
 
-ARG DOCKER_COMPOSE_VERSION=2.5.0
-ARG COMPOSE_SWITCH_VERSION=1.0.4
+ARG DOCKER_COMPOSE_VERSION=2.16.0
+ARG COMPOSE_SWITCH_VERSION=1.0.5
 
 # Install everything we need including for cdcs
 RUN apk add --no-cache \
