@@ -9,12 +9,13 @@ readonly cache_dir="${HALFPIPE_CACHE_DIR:-/var/halfpipe/shared-cache}"
 (
 set -e
 mkdir -p ${cache_mount}
-mount -t nfs -o nolock,retry=0,soft ${cache_host}:${cache_share} ${cache_mount}
+#mount -t nfs -o nolock,retry=0,soft ${cache_host}:${cache_share} ${cache_mount}
 )
 
 if [[ 0 -eq $? ]]; then
-    echo "Halfpipe shared cache available: ${cache_dir}"
-    echo "This cache is shared across all pipelines in the team '${cache_team}'"
+#    echo "Halfpipe shared cache available: ${cache_dir}"
+#    echo "This cache is shared across all pipelines in the team '${cache_team}'"
+     echo "Halfpipe shared cache disabled"
 else
     echo "Halfpipe shared cache unavailable"
 fi
