@@ -50,6 +50,20 @@ set +e
 
 # run the tests with docker-compose
 docker-compose pull --quiet ${DOCKER_COMPOSE_SERVICE:-code}
+
+echo running following docker-compose command:
+echo docker-compose run --no-deps \
+  --entrypoint "${CONSUMER_SCRIPT}" \
+  -e DEPENDENCY_NAME=${PROVIDER_NAME} \
+  -e ${PROVIDER_HOST_KEY}=${PROVIDER_HOST} \
+  -e CDC_CONSUMER_NAME=${CONSUMER_NAME} \
+  -e CDC_CONSUMER_VERSION=${REVISION} \
+  -e CDC_PROVIDER_NAME=${PROVIDER_NAME} \
+  -e CDC_PROVIDER_VERSION=${GIT_REVISION} \
+  ${ENV_OPTIONS:-} \
+  ${VOLUME_OPTIONS:-} \
+  ${DOCKER_COMPOSE_SERVICE:-code}
+
 docker-compose run --no-deps \
   --entrypoint "${CONSUMER_SCRIPT}" \
   -e DEPENDENCY_NAME=${PROVIDER_NAME} \
@@ -63,8 +77,6 @@ docker-compose run --no-deps \
   ${DOCKER_COMPOSE_SERVICE:-code}
 
 DC_STATUS=$?
-
-echo
 
 # record result in covenant
 if use_covenant; then
