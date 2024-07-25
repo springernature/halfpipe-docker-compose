@@ -25,6 +25,7 @@ resources:
       repository: eu.gcr.io/halfpipe-io/halfpipe-docker-compose
       username: _json_key
       password: ((halfpipe-gcr.private_key))
+      registry_mirror: https://eu-mirror.gcr.io
 
 jobs:
   - name: build
