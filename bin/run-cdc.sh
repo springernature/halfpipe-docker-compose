@@ -1,7 +1,4 @@
 #!/usr/bin/env bash
-
-# THIS IS A COPY OF SPRINGERNATURE/HALFPIPE-INFRA/ACTIONS/GHA-RUNNER-IMAGE/BIN
-# When editing, dont forget to change that file as well!
 set -euo pipefail
 
 source covenant.sh
@@ -52,10 +49,10 @@ cd /scratch/consumer/${CONSUMER_PATH}
 set +e
 
 # run the tests with docker-compose
-docker-compose -f ${DOCKER_COMPOSE_FILE:-docker-compose.yml} pull --quiet ${DOCKER_COMPOSE_SERVICE:-code}
+docker-compose pull --quiet ${DOCKER_COMPOSE_SERVICE:-code}
 
 echo running following docker-compose command:
-echo docker-compose -f ${DOCKER_COMPOSE_FILE:-docker-compose.yml} run --no-deps \
+echo docker-compose run --no-deps \
   --entrypoint "${CONSUMER_SCRIPT}" \
   -e DEPENDENCY_NAME=${PROVIDER_NAME} \
   -e ${PROVIDER_HOST_KEY}=${PROVIDER_HOST} \
@@ -67,7 +64,7 @@ echo docker-compose -f ${DOCKER_COMPOSE_FILE:-docker-compose.yml} run --no-deps 
   ${VOLUME_OPTIONS:-} \
   ${DOCKER_COMPOSE_SERVICE:-code}
 
-docker-compose -f ${DOCKER_COMPOSE_FILE:-docker-compose.yml} run --no-deps \
+docker-compose run --no-deps \
   --entrypoint "${CONSUMER_SCRIPT}" \
   -e DEPENDENCY_NAME=${PROVIDER_NAME} \
   -e ${PROVIDER_HOST_KEY}=${PROVIDER_HOST} \
