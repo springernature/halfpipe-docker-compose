@@ -89,6 +89,7 @@ start_dockerd() {
     --log-level error \
     --tls=false \
     -H tcp://0.0.0.0:2375 \
+    --registry-mirror=https://eu-mirror.gcr.io \
     -H unix:///var/run/docker.sock &>/scratch/dockerd.log &
 
   # wait for it
