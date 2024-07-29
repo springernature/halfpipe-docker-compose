@@ -52,10 +52,15 @@ cd /scratch/consumer/${CONSUMER_PATH}
 set +e
 
 # run the tests with docker-compose
-docker-compose -f ${DOCKER_COMPOSE_FILE:-docker-compose.yml} pull --quiet ${DOCKER_COMPOSE_SERVICE:-code}
+COMPOSE_FILE_OPTION=""
+if [[ -n "${DOCKER_COMPOSE_FILE:-}" ]]; then
+    COMPOSE_FILE_OPTION="-f ${DOCKER_COMPOSE_FILE}"
+fi
+
+docker-compose ${COMPOSE_FILE_OPTION} pull --quiet ${DOCKER_COMPOSE_SERVICE:-code}
 
 echo running following docker-compose command:
-echo docker-compose -f ${DOCKER_COMPOSE_FILE:-docker-compose.yml} run --no-deps \
+echo docker-compose ${COMPOSE_FILE_OPTION} run --no-deps \
   --entrypoint "${CONSUMER_SCRIPT}" \
   -e DEPENDENCY_NAME=${PROVIDER_NAME} \
   -e ${PROVIDER_HOST_KEY}=${PROVIDER_HOST} \
@@ -67,7 +72,7 @@ echo docker-compose -f ${DOCKER_COMPOSE_FILE:-docker-compose.yml} run --no-deps 
   ${VOLUME_OPTIONS:-} \
   ${DOCKER_COMPOSE_SERVICE:-code}
 
-docker-compose -f ${DOCKER_COMPOSE_FILE:-docker-compose.yml} run --no-deps \
+docker-compose ${COMPOSE_FILE_OPTION} run --no-deps \
   --entrypoint "${CONSUMER_SCRIPT}" \
   -e DEPENDENCY_NAME=${PROVIDER_NAME} \
   -e ${PROVIDER_HOST_KEY}=${PROVIDER_HOST} \
