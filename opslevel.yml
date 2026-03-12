@@ -7,4 +7,7 @@ component:
   owner: engineering-enablement
   language: bash
   lifecycle: core
-  tier: mission-critical
+  tier: Internal-Only
+  properties:
+    pipelines:
+      - concourse_engineering-enablement_halfpipe-docker-compose_521
