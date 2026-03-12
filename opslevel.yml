@@ -1,0 +1,10 @@
+version: 1
+component:
+  name: Halfpipe Docker Compose
+  description: Docker image with dind for running docker-compose tasks in halfpipe
+  type: application_module
+  system: APPL-437
+  owner: engineering-enablement
+  language: bash
+  lifecycle: core
+  tier: mission-critical
