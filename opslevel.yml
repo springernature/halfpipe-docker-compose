@@ -11,3 +11,7 @@ component:
   properties:
     pipelines:
       - concourse_engineering-enablement_halfpipe-docker-compose_521
+  tools:
+    - category: issue_tracking
+      name: GitHub
+      url: https://github.com/springernature/halfpipe-docker-compose/issues
