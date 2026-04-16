@@ -125,6 +125,26 @@ jobs:
             dir: git/integration/03_backward_compatibility
           inputs:
             - name: git
+      - task: test multiarch
+        privileged: true
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source:
+              repository: eu.gcr.io/halfpipe-io/halfpipe-docker-compose
+              username: _json_key
+              password: ((halfpipe-gcr.private_key))
+          run:
+            path: docker.sh
+            args:
+              - -c
+              - |
+                set -e
+                docker run --rm --platform linux/arm64 alpine uname -m | grep -q aarch64
+                echo "Multi-arch (arm64 emulation) working!"
+          inputs:
+            - name: git
 
   - name: deploy
     serial: true
