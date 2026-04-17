@@ -1,5 +1,7 @@
 # Halfpipe docker-compose
 
+<a href="https://concourse.halfpipe.io/teams/engineering-enablement/pipelines/halfpipe-docker-compose"><img src="https://badger.halfpipe.io/engineering-enablement/halfpipe-docker-compose" title="pipeline status"></a>
+
 A docker-in-docker image for running tasks in Concourse. Used by Halfpipe for `docker-compose`, `docker-push`, `consumer-integration-test` and `buildpack` tasks.
 
 Published to `eu.gcr.io/halfpipe-io/halfpipe-docker-compose`.
