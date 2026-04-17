@@ -1,89 +1,60 @@
 # Halfpipe docker-compose
 
-A container running the docker daemon for times when docker-in-docker ("dind") is needed. Used by the halfpipe `docker-compose` and `consumer-integration-test` tasks.
+A docker-in-docker image for running tasks in Concourse. Used by Halfpipe for `docker-compose`, `docker-push`, `consumer-integration-test` and `buildpack` tasks.
 
+Published to `eu.gcr.io/halfpipe-io/halfpipe-docker-compose`.
 
-It sets the environment variable `DIND_HOST` which can be passed into containers which need access to the docker daemon.
+## What's included
 
-example `docker-compose.yml`:
+Based on `docker:dind` (Alpine), the image ships with:
+
+- **Docker Compose v2** (as a CLI plugin) with Compose Switch for `docker-compose` v1 backward compatibility
+- **pack** (Cloud Native Buildpacks CLI)
+- **QEMU + buildx** for multi-architecture builds (amd64 + arm64)
+- bash, curl, jq, git
+
+## How it works
+
+The entrypoint (`bin/docker.sh`) handles the full lifecycle:
+
+1. **Starts `dockerd`** on both a Unix socket and `tcp://0.0.0.0:2375`, using `eu-mirror.gcr.io` as a registry mirror
+2. **Runs post-start hooks:**
+   - Mounts a shared NFS cache (`cache.halfpipe.io:/cache`) at `/var/halfpipe/shared-cache`, scoped to your team. Gracefully continues if the NFS host is unreachable.
+   - Registers QEMU binfmt for arm64 and creates a `multiarch` buildx builder
+3. **Executes your command** via `bash -c`
+4. **Cleans up** on exit (stops dockerd, unmounts cache)
+
+## Shared cache
+
+An NFS-backed shared cache is mounted automatically at:
+
 ```
-version: '3'
-services:
-  app:
-    image: ubuntu
-    command: ./build
-    working_dir: /work
-    volumes:
-      - .:/work
-    environment:
-      DOCKER_HOST: $DIND_HOST
+/var/halfpipe/shared-cache
 ```
 
-### Docker Image Cache
+The deprecated path `/halfpipe-shared-cache` is symlinked for backward compatibility.
 
-> This feature is not used by halfpipe since it turns out that loading an image from cache is no faster than downloading it :(
+The cache directory is scoped per team based on the `HALFPIPE_TEAM` environment variable.
 
-The startup script supports loading saved docker image tar files. They can be passed into the task as inputs in a subdirectory under `./docker-images` - i.e. `/tmp/build/xxxxx/docker-images`.
+## Multi-arch builds
 
-On startup the task loops through these directories and `docker load`s them.
+The image comes pre-configured with a `multiarch` buildx builder supporting `linux/amd64` and `linux/arm64`. Use it in your tasks:
 
-
-#### example
-```yaml
-resources:
-- name: git
-  type: git
-  source:
-    paths:
-    - docker-compose
-    private_key: ((github.private_key))
-    uri: git@github.com:springernature/halfpipe-examples
-- name: appropriate_curl
-  type: docker-image
-  source:
-    repository: appropriate/curl
-- name: nginx
-  type: docker-image
-  source:
-    repository: nginx
-jobs:
-- name: test in docker-compose
-  serial: true
-  plan:
-  - aggregate:
-    - get: git
-      trigger: true
-    - get: appropriate_curl
-      params:
-        save: true
-    - get: nginx
-      params:
-        save: true
-  - task: test in docker-compose
-    privileged: true
-    config:
-      platform: linux
-      image_resource:
-        type: docker-image
-        source:
-          password: ((gcr.private_key))
-          repository: eu.gcr.io/halfpipe-io/halfpipe-docker-compose
-          tag: latest
-          username: _json_key
-      params:
-        GCR_PRIVATE_KEY: ((gcr.private_key))
-      run:
-        path: docker.sh
-        args:
-        - |
-          export GIT_REVISION=`cat ../.git/ref`
-          docker login -u _json_key -p "$GCR_PRIVATE_KEY" https://eu.gcr.io
-          docker-compose run -e GIT_REVISION app
-        dir: git/docker-compose
-      inputs:
-      - name: git
-      - name: appropriate_curl
-        path: docker-images/appropriate_curl
-      - name: nginx
-        path: docker-images/nginx
+```bash
+docker buildx build --builder multiarch --platform linux/amd64,linux/arm64 -t myimage .
 ```
+
+## Halfpipe CDC testing
+
+The image includes scripts for running Consumer-Driven Contract tests:
+
+- `run-cdc.sh` -- Fetches the consumer's deployed version, clones the consumer repo at that revision, and runs the CDC test suite via `docker-compose run`. Results are recorded in the Covenant service.
+- `covenant.sh` -- HTTP client for the [Covenant](https://covenant.springernature.app) CDC result tracking service.
+
+## Pipeline
+
+The Concourse pipeline (`.pipeline.yml`) has three stages:
+
+1. **build** -- Triggered on push to `main`. Builds and pushes the image tagged with the version number and `dev`.
+2. **test** -- Runs integration tests covering docker-compose functionality, NFS cache availability/unavailability, backward compatibility, and multi-arch emulation.
+3. **deploy** -- Manual trigger. Promotes the image to `stable`.
