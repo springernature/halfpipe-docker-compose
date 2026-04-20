@@ -1,3 +1,6 @@
+> [!WARNING]
+> This has moved to [halfpipe-infra](https://github.com/springernature/halfpipe-infra/tree/master/opt/halfpipe-docker)
+
 # Halfpipe docker-compose
 
 <a href="https://concourse.halfpipe.io/teams/engineering-enablement/pipelines/halfpipe-docker-compose"><img src="https://concourse-badger.public.springernature.app/engineering-enablement/halfpipe-docker-compose" title="pipeline status"></a>
